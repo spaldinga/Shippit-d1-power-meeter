@@ -27,53 +27,29 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 EnergyMonitor emon1;
 double Irms, thePower;
 
-void testdrawchar(void) {
+void writeEnergyToDisplay(double watts, double amps){
+  // display.setCursor(3, 1); // Start from column 3, first two are broken :/
+
   display.clearDisplay();
 
-  display.setTextSize(1);      // Normal 1:1 pixel scale
-  display.setTextColor(WHITE); // Draw white text
-  display.setCursor(0, 0);     // Start at top-left corner
-  display.cp437(true);         // Use full 256 char 'Code Page 437' font
-
-  // Not all the characters will fit on the display. This is normal.
-  // Library will draw what it can and the rest will be clipped.
-  for(int16_t i=0; i<256; i++) {
-    if(i == '\n') display.write(' ');
-    else          display.write(i);
-  }
-
-  display.display();
-  delay(2000);
-}
-
-void testdrawstyles(void) {
-  display.clearDisplay();
-
-  display.setTextSize(1);             // Normal 1:1 pixel scale
+  display.setTextSize(2);             // Normal 1:1 pixel scale
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("Hello, world!"));
-
-  display.setTextColor(BLACK, WHITE); // Draw 'inverse' text
-  display.println(3.141592);
-
-  display.setTextSize(2);             // Draw 2X-scale text
-  display.setTextColor(WHITE);
-  display.print(F("0x")); display.println(0xDEADBEEF, HEX);
-
+  display.print((int)watts);
+  display.print(F("W "));
+  display.print(amps);
+  display.println(F("A"));
   display.display();
-  delay(2000);
 }
 
 void setup()
 {
   Serial.begin(115200); /* Initialize serial communication at 115200 */
 
-  // emon1.current(analogPin, 111.1);  //pin for current measurement, calibration value
-  emon1.current(analogPin, 60.6);  //pin for current measurement, calibration value
+  emon1.current(analogPin, 30);  //pin for current measurement, calibration value
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
@@ -96,41 +72,16 @@ void setup()
   //   display.display() is NOT necessary after every single drawing command,
   //   unless that's what you want...rather, you can batch up a bunch of
   //   drawing operations and then update the screen all at once by calling
-  //   display.display(). These examples demonstrate both approaches...
-
-//   testdrawchar();      // Draw characters of the default font
-
-  testdrawstyles();    // Draw 'stylized' characters
 }
 
 void loop()
 {
-  // Irms = emon1.calcIrms(1480); // measure current
-  Irms = emon1.calcIrms(1484); // measure current
-  thePower = Irms*230.0;   // we assume voltage is 230VAC if you add transformer to
- 
-  /* Print the output in the Serial Monitor */
-  Serial.print("Power: ");
-  Serial.println(thePower);
-  Serial.print("Current: ");
-  Serial.println(Irms);
-  // Serial.print("ADC: ");
-  // Serial.println(analogRead(analogPin));
-  
-  display.clearDisplay();
+  // Irms = emon1.calcIrms(1484); // measure current
+  double amps = emon1.calcIrms(1480); // measure current
+  double watt = amps*230.0;   // we assume voltage is 230VAC if you add transformer to
 
-  display.setTextSize(2);             // Normal 1:1 pixel scale
-  display.setTextColor(WHITE);        // Draw white text
-  display.setCursor(0,0);             // Start at top-left corner
-  display.println(F("Power: "));
-  display.print(thePower);
-  display.println(F("?"));
-  display.println(F("Current: "));
-  display.print(Irms);
-  display.println(F("?A"));
-  // display.print(F("ADC: "));
-  // display.println(analogRead(analogPin));
-  display.display();
+  // Update the display
+  writeEnergyToDisplay(watt, amps);
 
   delay(300);
 }
