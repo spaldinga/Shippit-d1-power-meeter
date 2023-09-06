@@ -18,27 +18,30 @@
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// Force EmonLib to use 10bit ADC resolution
-#define ADC_BITS    10
-#define ADC_COUNTS  (1<<ADC_BITS)
-
 // ADC_MODE(ADC_TOUT);
 
 EnergyMonitor emon1;
 double Irms, thePower;
 
 void writeEnergyToDisplay(double watts, double amps){
-  // display.setCursor(3, 1); // Start from column 3, first two are broken :/
 
   display.clearDisplay();
 
   display.setTextSize(2);             // Normal 1:1 pixel scale
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.print((int)watts);
-  display.print(F("W "));
-  display.print(amps);
-  display.println(F("A"));
+  if (watts < 30)
+  {
+    display.print(F("0W "));
+    display.println(F("0A"));
+  }
+  else
+  {
+    display.print((int)watts);
+    display.print(F("W "));
+    display.print(amps);
+    display.println(F("A"));
+  }
   display.display();
 }
 
@@ -54,7 +57,7 @@ void setup()
     for(;;); // Don't proceed, loop forever
   }
 
-    // Show initial display buffer contents on the screen --
+  // Show initial display buffer contents on the screen --
   // the library initializes this with an Adafruit splash screen.
   display.display();
   delay(2000); // Pause for 2 seconds
