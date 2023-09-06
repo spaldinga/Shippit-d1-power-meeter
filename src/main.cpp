@@ -19,13 +19,13 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // Force EmonLib to use 10bit ADC resolution
-// #define ADC_BITS    10
-// #define ADC_COUNTS  (1<<ADC_BITS)
+#define ADC_BITS    10
+#define ADC_COUNTS  (1<<ADC_BITS)
 
 // ADC_MODE(ADC_TOUT);
 
-// EnergyMonitor emon1;
-int adcValue = 0;  /* Variable to store Output of ADC */
+EnergyMonitor emon1;
+double Irms, thePower;
 
 void testdrawchar(void) {
   display.clearDisplay();
@@ -69,6 +69,9 @@ void setup()
 {
   Serial.begin(115200); /* Initialize serial communication at 115200 */
 
+  // emon1.current(analogPin, 111.1);  //pin for current measurement, calibration value
+  emon1.current(analogPin, 60.6);  //pin for current measurement, calibration value
+
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
     Serial.println(F("SSD1306 allocation failed"));
@@ -102,19 +105,31 @@ void setup()
 
 void loop()
 {
-  adcValue = analogRead(analogPin); /* Read the Analog Input value */
+  // Irms = emon1.calcIrms(1480); // measure current
+  Irms = emon1.calcIrms(1484); // measure current
+  thePower = Irms*230.0;   // we assume voltage is 230VAC if you add transformer to
  
   /* Print the output in the Serial Monitor */
-  Serial.print("ADC Value = ");
-  Serial.println(adcValue);
+  Serial.print("Power: ");
+  Serial.println(thePower);
+  Serial.print("Current: ");
+  Serial.println(Irms);
+  // Serial.print("ADC: ");
+  // Serial.println(analogRead(analogPin));
   
   display.clearDisplay();
 
   display.setTextSize(2);             // Normal 1:1 pixel scale
   display.setTextColor(WHITE);        // Draw white text
   display.setCursor(0,0);             // Start at top-left corner
-  display.print(F("ADC Value = "));
-  display.println(adcValue);
+  display.println(F("Power: "));
+  display.print(thePower);
+  display.println(F("?"));
+  display.println(F("Current: "));
+  display.print(Irms);
+  display.println(F("?A"));
+  // display.print(F("ADC: "));
+  // display.println(analogRead(analogPin));
   display.display();
 
   delay(300);

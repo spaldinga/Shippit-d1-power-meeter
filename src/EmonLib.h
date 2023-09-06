@@ -39,10 +39,6 @@
 #define ADC_BITS    10
 #endif
 
-#if defined(ESP32)
-#define ADC_BITS    12
-#endif
-
 #define ADC_COUNTS  (1<<ADC_BITS)
 
 

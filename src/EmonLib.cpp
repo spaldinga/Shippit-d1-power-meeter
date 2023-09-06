@@ -106,9 +106,9 @@ void EnergyMonitor::calcVI(unsigned int crossings, unsigned int timeout)
     // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,
     //     then subtract this - signal is now centred on 0 counts.
     //-----------------------------------------------------------------------------
-    offsetV = offsetV + ((sampleV-offsetV)/ADC_COUNTS);
+    offsetV = offsetV + ((sampleV-offsetV)/1024);
     filteredV = sampleV - offsetV;
-    offsetI = offsetI + ((sampleI-offsetI)/ADC_COUNTS);
+    offsetI = offsetI + ((sampleI-offsetI)/1024);
     filteredI = sampleI - offsetI;
 
     //-----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
 
     // Digital low pass filter extracts the 2.5 V or 1.65 V dc offset,
     //  then subtract this - signal is now centered on 0 counts.
-    offsetI = (offsetI + (sampleI-offsetI)/ADC_COUNTS);
+    offsetI = (offsetI + (sampleI-offsetI)/1024);
     filteredI = sampleI - offsetI;
 
     // Root-mean-square method current
@@ -227,6 +227,8 @@ void EnergyMonitor::serialprint()
 //and Jérôme who alerted us to http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/
 
 long EnergyMonitor::readVcc() {
+  long result;
+
   //not used on emonTx V3 - as Vcc is always 3.3V - eliminates bandgap error and need for calibration http://harizanov.com/2013/09/thoughts-on-avr-adc-accuracy/
 
   #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined (__AVR_ATmega328P__)
@@ -258,4 +260,3 @@ long EnergyMonitor::readVcc() {
   return (3300);                                  //Guess that other un-supported architectures will be running a 3.3V!
   #endif
 }
-
