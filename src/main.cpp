@@ -4,7 +4,7 @@
 // https://randomnerdtutorials.com/guide-for-oled-display-with-arduino/
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "functions/EmonLib.h"
+#include "EmonLib.h"
 // https://simplyexplained.com/blog/Home-Energy-Monitor-ESP32-CT-Sensor-Emonlib/?ref=localhost
 // https://olimex.wordpress.com/2015/09/29/energy-monitoring-with-arduino-and-current-clamp-sensor/
 // https://www.engineersgarage.com/non-invasive-current-sensor-with-arduino/
